@@ -1,2 +1,4 @@
 # webp files are build output, so don't include them in source
 *.webp
+
+.env
