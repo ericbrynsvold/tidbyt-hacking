@@ -87,7 +87,7 @@ def standings_block():
         rangersStandings = fangraphsGetRangers(standingsJson)
         playoffOdds = rangersStandings["endData"]["poffTitle"] * 100
         
-        formattedPlayoffOdds = humanize.float("#.##", playoffOdds)
+        formattedPlayoffOdds = humanize.float("#.#", playoffOdds)
         cache.set("rangers_playoff_odds", formattedPlayoffOdds, ttl_seconds=600)
     else:
         print("Fangraphs cache hit")
