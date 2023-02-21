@@ -11,6 +11,4 @@ RUN apk add --no-cache git go libwebp libwebp-dev alpine-sdk && \
 
 COPY . .
 
-WORKDIR /rangers-info
-
-CMD ["sh", "build.sh"]
+ENTRYPOINT ["sh", "build-rangersinfo.sh"]
