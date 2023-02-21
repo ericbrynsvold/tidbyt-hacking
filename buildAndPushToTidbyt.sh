@@ -2,8 +2,13 @@
 # get current directory of script, no matter where it's called from
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 
-# load env variables
-source "$parent_path/.env"
+# optionally load env variables
+if [ -n "${TIDBYT_API_TOKEN+set}" ]
+then
+    echo "vars are set"
+else
+    source "$parent_path/.env"
+fi
 
 appName=$1
 sourceFile="$appName.star"
