@@ -109,7 +109,7 @@ def getRangers(alWest):
             return team
 
 def record_view(wins, losses):
-    return render.Text("{}-{}".format(wins, losses))
+    return render.Text(content = "{}-{}".format(wins, losses), color = "#FF0")
 
 def al_west_view(rank):
     return render.Text("ALW: %s" % humanize.ordinal(rank))
