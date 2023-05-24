@@ -9,6 +9,8 @@ env:
   TIDBYT_DEVICE_ID: ${{ secrets.TIDBYT_DEVICE_ID }}
   TIDBYT_API_TOKEN_KYLE: ${{ secrets.TIDBYT_API_TOKEN_KYLE }}
   TIDBYT_DEVICE_ID_KYLE: ${{ secrets.TIDBYT_DEVICE_ID_KYLE }}
+  TIDBYT_API_TOKEN_JASON: ${{ secrets.TIDBYT_API_TOKEN_JASON }}
+  TIDBYT_DEVICE_ID_JASON: ${{ secrets.TIDBYT_DEVICE_ID_JASON }}
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
