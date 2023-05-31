@@ -2,7 +2,6 @@ load("render.star", "render")
 load("encoding/base64.star", "base64")
 load("humanize.star", "humanize")
 load("http.star", "http")
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 
 RANGERS_ICON = base64.decode("iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAfklEQVQ4T2NUMEn6z0ABYIQZcP/0XJKMUTRNBqsn24B3sqoMxhJ2qAbABGFOgbkKmzj1DQDZevbFIbCzCLkAWS08DLCFIC4vIKvFaQB6rMBCHd0iol0A0ojsPZhBRBuATTNKOqB6GIAMHNhARI8F9NRIVCCCEhYyIDkWiMmeAAbGZWGVxIGMAAAAAElFTkSuQmCC")
@@ -29,43 +28,23 @@ def main():
     )
 
 def standings_block():
-    standings_cached_json = cache.get("rangers_standings")
+    # fetch wins / losses / division rank / wild card rank from MLB.com
     wildCardRank = -1
+    res = http.get(url = STANDINGS_API, ttl_seconds = 600)
+    if res.status_code != 200:
+        fail("Error in fetching mlb.com standings %d - %s" % (res.status_code, res.body()))
+    
+    divisions = res.json()["records"]
+    alWestRecords = getAlWest(divisions)
+    rangersRecords = getRangers(alWestRecords)
 
-    if standings_cached_json == None:
-        print("no cached MLB data, fetching")
-        rep = http.get(STANDINGS_API)
-        if rep.status_code != 200:
-            fail("there was an error", rep.status_code)
+    wins = int(rangersRecords["wins"])
+    losses = int(rangersRecords["losses"])
 
-        divisions = rep.json()["records"]
-        alWestRecords = getAlWest(divisions)
-        rangersRecords = getRangers(alWestRecords)
+    divisionRank = int(rangersRecords["divisionRank"])
 
-        wins = int(rangersRecords["wins"])
-        losses = int(rangersRecords["losses"])
-
-        divisionRank = int(rangersRecords["divisionRank"])
-
-        if "wildCardRank" in rangersRecords:
-            wildCardRank = int(rangersRecords["wildCardRank"])
-
-        cacheDict = {
-            "wins": wins,
-            "losses": losses,
-            "divisionRank": divisionRank,
-            "wildCardRank": wildCardRank
-        }
-        cacheDictJson = json.encode(cacheDict)
-        cache.set("rangers_standings", cacheDictJson, ttl_seconds=600)
-
-    else:
-        print("MLB cache hit")
-        standings_cached = json.decode(standings_cached_json)
-        wins = standings_cached["wins"]
-        losses = standings_cached["losses"]
-        divisionRank = standings_cached["divisionRank"]
-        wildCardRank = standings_cached["wildCardRank"]
+    if "wildCardRank" in rangersRecords:
+        wildCardRank = int(rangersRecords["wildCardRank"])
 
     views = [
         record_view(wins, losses),
@@ -75,28 +54,19 @@ def standings_block():
     if (wildCardRank != -1):
         views.append(wild_card_view(wildCardRank))
 
-    formattedPlayoffOdds = cache.get("rangers_playoff_odds")
-    formattedDivisionOdds = cache.get("rangers_division_odds")
+    # fetch playoff odds from fangraphs
 
-    if formattedPlayoffOdds == None:
-        print("no cached Fangraphs data, fetching")
-        rep = http.get(FANGRAPHS_PLAYOFF_ODDS)
-        if rep.status_code != 200:
-            fail("there was an error", rep.status_code)
+    fangraphsRes = http.get(FANGRAPHS_PLAYOFF_ODDS, ttl_seconds = 600)
+    if fangraphsRes.status_code != 200:
+        fail("Error in fetching Fangraphs playoff odds %d - %s" % (fangraphsRes.status_code, fangraphsRes.body()))
 
-        standingsJson = rep.json()
-        rangersStandings = fangraphsGetRangers(standingsJson)
-        playoffOdds = rangersStandings["endData"]["poffTitle"] * 100
-        divisionOdds = rangersStandings["endData"]["divTitle"] * 100
-        
-        formattedPlayoffOdds = humanize.float("#.#", playoffOdds)
-        cache.set("rangers_playoff_odds", formattedPlayoffOdds, ttl_seconds=600)
+    standingsJson = fangraphsRes.json()
+    rangersStandings = fangraphsGetRangers(standingsJson)
+    playoffOdds = rangersStandings["endData"]["poffTitle"] * 100
+    formattedPlayoffOdds = humanize.float("#.#", playoffOdds)
+    divisionOdds = rangersStandings["endData"]["divTitle"] * 100
+    formattedDivisionOdds = humanize.float("#.#", divisionOdds)
 
-        formattedDivisionOdds = humanize.float("#.#", divisionOdds)
-        cache.set("rangers_division_odds", formattedDivisionOdds, ttl_seconds=600)
-    else:
-        print("Fangraphs cache hit")
-    
     views.append(render.Text("P: %s%%" % formattedPlayoffOdds))
 
     if (wildCardRank == -1):
