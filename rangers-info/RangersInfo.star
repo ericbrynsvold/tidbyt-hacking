@@ -76,6 +76,7 @@ def standings_block():
         views.append(wild_card_view(wildCardRank))
 
     formattedPlayoffOdds = cache.get("rangers_playoff_odds")
+    formattedDivisionOdds = cache.get("rangers_division_odds")
 
     if formattedPlayoffOdds == None:
         print("no cached Fangraphs data, fetching")
@@ -86,13 +87,20 @@ def standings_block():
         standingsJson = rep.json()
         rangersStandings = fangraphsGetRangers(standingsJson)
         playoffOdds = rangersStandings["endData"]["poffTitle"] * 100
+        divisionOdds = rangersStandings["endData"]["divTitle"] * 100
         
         formattedPlayoffOdds = humanize.float("#.#", playoffOdds)
         cache.set("rangers_playoff_odds", formattedPlayoffOdds, ttl_seconds=600)
+
+        formattedDivisionOdds = humanize.float("#.#", divisionOdds)
+        cache.set("rangers_division_odds", formattedDivisionOdds, ttl_seconds=600)
     else:
         print("Fangraphs cache hit")
     
     views.append(render.Text("P: %s%%" % formattedPlayoffOdds))
+
+    if (wildCardRank == -1):
+        views.append(render.Text("D: %s%%" % formattedDivisionOdds))
 
     return render.Column(
         children = views
