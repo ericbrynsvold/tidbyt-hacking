@@ -4,7 +4,7 @@ load("humanize.star", "humanize")
 load("http.star", "http")
 load("encoding/json.star", "json")
 
-RANGERS_ICON = base64.decode("iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAfklEQVQ4T2NUMEn6z0ABYIQZcP/0XJKMUTRNBqsn24B3sqoMxhJ2qAbABGFOgbkKmzj1DQDZevbFIbCzCLkAWS08DLCFIC4vIKvFaQB6rMBCHd0iol0A0ojsPZhBRBuATTNKOqB6GIAMHNhARI8F9NRIVCCCEhYyIDkWiMmeAAbGZWGVxIGMAAAAAElFTkSuQmCC")
+RANGERS_ICON = base64.decode("iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAAgUlEQVQ4T2NkMKr4z0AhYIQZ8v9sO0lGMRpXwtWTbchBIUUGB8UIsEEohiBLgCRhrsMmTjtDQDYfuL8C7kR8LkFXC/cOtlDF5R10tTgNQY8t5Ngg2hB074D4sNgg2xBcBqBEMU3ChFDsIFs6BGIHPYrRkz7R3gGlYGRAVhQTWzYAAMRfaksi6lX2AAAAAElFTkSuQmCC")
 
 BASE_URL = "https://statsapi.mlb.com/api/"
 STANDINGS_API = BASE_URL + "v1/standings?leagueId=103"
@@ -15,12 +15,16 @@ FANGRAPHS_PLAYOFF_ODDS = "https://www.fangraphs.com/api/playoff-odds/odds?projec
 def main():
     return render.Root(
         child = render.Box(
-            render.Row(
+            color = "#003278",
+            child = render.Row(
                 expanded=True, # Use as much horizontal space as possible
-                main_align="space_evenly", # controls horizontal alignment
+                main_align="start", # controls horizontal alignment
                 cross_align="center", # Controls vertical
                 children = [
-                    render.Image(src=RANGERS_ICON),
+                    render.Padding(
+                        child = render.Image(src=RANGERS_ICON),
+                        pad = 2
+                    ),
                     standings_block()
                 ],
             )
