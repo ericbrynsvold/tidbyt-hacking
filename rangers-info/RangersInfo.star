@@ -100,6 +100,8 @@ def getRangers(alWest):
 def genGamesDiff(alWest):
     rangers = getRangers(alWest)
     if rangers["divisionRank"] != "1":
+        if rangers["divisionGamesBack"] == "-":
+            return 0
         return float(rangers["divisionGamesBack"]) * -1
     smallestGamesBack = 162.0
     for rival in alWest:
