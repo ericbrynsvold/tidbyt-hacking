@@ -52,9 +52,12 @@ def standings_block():
 
     # test data for leading the division
     # alWestRecords = [{"team": {"id":140}, "divisionRank":"1","divisionGamesBack":"-"}, {"team": {"id":141}, "divisionRank":"2","divisionGamesBack":"9.5"}]
+
+    # test data for being tied for first in the division
+    # alWestRecords = [{"team": {"id":140}, "divisionRank":"2","divisionGamesBack":"-"}]
     gamesDiff = genGamesDiff(alWestRecords)
 
-    if "wildCardRank" in rangersRecords:
+    if "wildCardRank" in rangersRecords and gamesDiff != 0:
         wildCardRank = int(rangersRecords["wildCardRank"])
 
     views = [
@@ -113,6 +116,8 @@ def record_view(wins, losses):
     return render.Text(content = "{}-{}".format(wins, losses), color = "#FF0")
 
 def al_west_view(rank, gamesDiff):
+    if gamesDiff == 0:
+        return render.Text("{} (-)".format(humanize.ordinal(1)))
     formatString = "{} (+{})" if (gamesDiff > 0) else "{} ({})"
     return render.Text(formatString.format(humanize.ordinal(rank), gamesDiff))
 
