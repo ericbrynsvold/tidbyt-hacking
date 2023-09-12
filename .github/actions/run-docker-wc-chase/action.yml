@@ -1,0 +1,5 @@
+name: 'Run Docker - WC Chase'
+description: 'Builds container to build WC Chase Tidbyt app'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
