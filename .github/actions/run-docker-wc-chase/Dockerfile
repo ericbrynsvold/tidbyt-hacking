@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM alpine:edge
 RUN apk add git go libwebp libwebp-dev alpine-sdk
 
 RUN apk add --no-cache git go libwebp libwebp-dev alpine-sdk && \
