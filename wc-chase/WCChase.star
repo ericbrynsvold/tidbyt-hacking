@@ -84,7 +84,7 @@ def teamToText(team):
 
     return render.Text(
         font = "5x8",
-        content = "{} {} {}".format(team["team"], wc, division),
+        content = "{} {} {}".format(team["team"], division, wc),
         color = textColor
     )
 
