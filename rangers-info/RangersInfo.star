@@ -14,6 +14,7 @@ FANGRAPHS_PLAYOFF_ODDS = "https://www.fangraphs.com/api/playoff-odds/odds?projec
 
 def main():
     return render.Root(
+        delay = 500,
         child = render.Box(
             color = "#003278",
             child = render.Row(
@@ -81,10 +82,30 @@ def standings_block():
     divisionOdds = rangersStandings["endData"]["divTitle"] * 100
     formattedDivisionOdds = humanize.float("#.#", divisionOdds)
 
-    views.append(render.Text("P: %s%%" % formattedPlayoffOdds))
+    if (formattedPlayoffOdds == "100.0"):
+        views.append(
+            render.Animation(
+                children = [
+                    render.Text("P: 100% !"),
+                    render.Text("P: 100%")
+                ]
+            )
+        )
+    else:
+        views.append(render.Text("P: %s%%" % formattedPlayoffOdds))
 
     if (wildCardRank == -1):
-        views.append(render.Text("D: %s%%" % formattedDivisionOdds))
+        if (formattedDivisionOdds == "100.0"):
+            views.append(
+                render.Animation(
+                    children = [
+                        render.Text("P: 100% !"),
+                        render.Text("P: 100%")
+                    ]
+                )
+            )
+        else:
+            views.append(render.Text("D: %s%%" % formattedDivisionOdds))
 
     return render.Column(
         children = views
