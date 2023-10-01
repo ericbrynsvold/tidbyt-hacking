@@ -82,6 +82,17 @@ def standings_block():
     divisionOdds = rangersStandings["endData"]["divTitle"] * 100
     formattedDivisionOdds = humanize.float("#.#", divisionOdds)
 
+    if (formattedDivisionOdds == "100.0"):
+        views = [
+            render.Row(children=[record_view(wins, losses)], main_align="center", expanded=True),
+            render.Row(children=[render.Text("AL")], main_align="center", expanded=True),
+            render.Row(children=[render.Text("WEST")], main_align="center", expanded=True),
+            render.Row(children=[render.Text("CHAMPS")], main_align="center", expanded=True)
+        ]
+        return render.Column(
+            children = views
+        )
+
     if (formattedPlayoffOdds == "100.0"):
         views.append(
             render.Animation(
