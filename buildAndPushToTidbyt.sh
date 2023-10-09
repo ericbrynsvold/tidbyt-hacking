@@ -22,7 +22,7 @@ tidbytDeviceIdJason=$TIDBYT_DEVICE_ID_JASON
 # build
 pixlet render $sourceFile
 # upload
-pixlet push --installation-id $appName $tidbytDeviceId $outputFile --api-token $tidbytApiToken
+(set -x; pixlet push --installation-id $appName $tidbytDeviceId $outputFile --api-token $tidbytApiToken)
 # upload to Kyle
 pixlet push --installation-id $appName $tidbytDeviceIdKyle $outputFile --api-token $tidbytApiTokenKyle
 # upload to Jason
