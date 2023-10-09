@@ -8,10 +8,11 @@ else
     source ".env"
 fi
 
-appName=$1
-directory=$2
-sourceFile="$directory/$appName.star"
-outputFile="$directory/$appName.webp"
+installationId=$1
+fileName=$2
+directory=$3
+sourceFile="$directory/$fileName.star"
+outputFile="$directory/$fileName.webp"
 tidbytApiToken=$TIDBYT_API_TOKEN
 tidbytDeviceId=$TIDBYT_DEVICE_ID
 tidbytApiTokenKyle=$TIDBYT_API_TOKEN_KYLE
@@ -22,8 +23,8 @@ tidbytDeviceIdJason=$TIDBYT_DEVICE_ID_JASON
 # build
 pixlet render $sourceFile
 # upload
-(set -x; pixlet push --installation-id $appName $tidbytDeviceId $outputFile --api-token $tidbytApiToken)
+pixlet push --installation-id $installationId $tidbytDeviceId $outputFile --api-token $tidbytApiToken
 # upload to Kyle
-pixlet push --installation-id $appName $tidbytDeviceIdKyle $outputFile --api-token $tidbytApiTokenKyle
+pixlet push --installation-id $installationId $tidbytDeviceIdKyle $outputFile --api-token $tidbytApiTokenKyle
 # upload to Jason
-pixlet push --installation-id $appName $tidbytDeviceIdJason $outputFile --api-token $tidbytApiTokenJason
+pixlet push --installation-id $installationId $tidbytDeviceIdJason $outputFile --api-token $tidbytApiTokenJason
