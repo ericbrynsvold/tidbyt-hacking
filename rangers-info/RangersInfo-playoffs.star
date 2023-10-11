@@ -48,7 +48,7 @@ def standings_block():
 
 
     views = [
-        record_view(4, 0),
+        record_view(5, 0),
         render.Text("DS: %s%%" % formattedDsOdds),
         render.Text("CS: %s%%" % formattedCsOdds),
         render.Text("WS: %s%%" % formattedWsOdds)
