@@ -46,13 +46,30 @@ def standings_block():
     wsOdds = rangersStandings["endData"]["wsWin"] * 100
     formattedWsOdds = humanize.float("#.#", wsOdds)
 
+    wins = 7
+    losses = 0
 
-    views = [
-        record_view(6, 0),
-        render.Text("DS: %s%%" % formattedDsOdds),
-        render.Text("CS: %s%%" % formattedCsOdds),
-        render.Text("WS: %s%%" % formattedWsOdds)
-    ]
+    if formattedWsOdds == "100.0":
+        views = [
+            render.Row(children=[render.Text("2023")], main_align="center", expanded=True),
+            render.Row(children=[render.Text("WORLD")], main_align="center", expanded=True),
+            render.Row(children=[render.Text("SERIES")], main_align="center", expanded=True),
+            render.Row(children=[render.Text("CHAMPS")], main_align="center", expanded=True)
+        ]
+    elif formattedCsOdds == "100.0":
+        views = [
+            render.Row(children=[record_view(wins, losses)], main_align="center", expanded=True),
+            render.Row(children=[render.Text("AL")], main_align="center", expanded=True),
+            render.Row(children=[render.Text("CHAMPS")], main_align="center", expanded=True),
+            render.Row(children=[render.Text("WS: %s%%" % formattedWsOdds)], main_align="center", expanded=True),
+        ]
+    else:
+        views = [
+            render.Row(children=[record_view(wins, losses)], main_align="center", expanded=True),
+            render.Text("DS: %s%%" % formattedDsOdds),
+            render.Text("CS: %s%%" % formattedCsOdds),
+            render.Text("WS: %s%%" % formattedWsOdds)
+        ]
 
     return render.Column(
         children = views
