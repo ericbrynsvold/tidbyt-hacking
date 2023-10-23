@@ -42,7 +42,7 @@ def standings_block():
     dsOdds = rangersStandings["endData"]["dsWin"] * 100
     formattedDsOdds = humanize.float("#.#", dsOdds)
     csOdds = rangersStandings["endData"]["csWin"] * 100
-    formattedCsOdds = "0.0"#humanize.float("#.#", csOdds)
+    formattedCsOdds = humanize.float("#.#", csOdds)
     wsOdds = rangersStandings["endData"]["wsWin"] * 100
     formattedWsOdds = humanize.float("#.#", wsOdds)
 
