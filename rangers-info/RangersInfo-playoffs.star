@@ -42,12 +42,12 @@ def standings_block():
     dsOdds = rangersStandings["endData"]["dsWin"] * 100
     formattedDsOdds = humanize.float("#.#", dsOdds)
     csOdds = rangersStandings["endData"]["csWin"] * 100
-    formattedCsOdds = humanize.float("#.#", csOdds)
+    formattedCsOdds = "0.0"#humanize.float("#.#", csOdds)
     wsOdds = rangersStandings["endData"]["wsWin"] * 100
     formattedWsOdds = humanize.float("#.#", wsOdds)
 
-    wins = 7
-    losses = 2
+    wins = 8
+    losses = 3
 
     if formattedWsOdds == "100.0":
         views = [
@@ -62,6 +62,13 @@ def standings_block():
             render.Row(children=[render.Text("AL")], main_align="center", expanded=True),
             render.Row(children=[render.Text("CHAMPS")], main_align="center", expanded=True),
             render.Row(children=[render.Text("WS: %s%%" % formattedWsOdds)], main_align="center", expanded=True),
+        ]
+    elif formattedCsOdds == "0.0":
+        views = [
+            render.Row(children=[record_view(90, 72)], main_align="center", expanded=True),
+            render.Row(children=[render.Text("It was")], main_align="center", expanded=True),
+            render.Row(children=[render.Text("a great")], main_align="center", expanded=True),
+            render.Row(children=[render.Text("run")], main_align="center", expanded=True),
         ]
     else:
         views = [
