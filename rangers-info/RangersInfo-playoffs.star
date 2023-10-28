@@ -46,7 +46,7 @@ def standings_block():
     wsOdds = rangersStandings["endData"]["wsWin"] * 100
     formattedWsOdds = humanize.float("#.#", wsOdds)
 
-    wins = 9
+    wins = 10
     losses = 3
 
     if formattedWsOdds == "100.0":
