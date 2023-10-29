@@ -47,7 +47,7 @@ def standings_block():
     formattedWsOdds = humanize.float("#.#", wsOdds)
 
     wins = 10
-    losses = 3
+    losses = 4
 
     if formattedWsOdds == "100.0":
         views = [
