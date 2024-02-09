@@ -5,6 +5,7 @@ load("http.star", "http")
 load("encoding/json.star", "json")
 
 RANGERS_ICON = base64.decode("iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAAgUlEQVQ4T2NkMKr4z0AhYIQZ8v9sO0lGMRpXwtWTbchBIUUGB8UIsEEohiBLgCRhrsMmTjtDQDYfuL8C7kR8LkFXC/cOtlDF5R10tTgNQY8t5Ngg2hB074D4sNgg2xBcBqBEMU3ChFDsIFs6BGIHPYrRkz7R3gGlYGRAVhQTWzYAAMRfaksi6lX2AAAAAElFTkSuQmCC")
+RANGERS_ICON_GOLD = base64.decode("iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAAgUlEQVQ4T2NkMKr4z0AhYIQZ8n9pB0lGMUZXwNWTbchBKwUGB8UIsEEohiBLgCRhrsMmTjtDQDYfuL8C7kR8LkFXC/cOtlDF5R10tTgNQY8t5Ngg2hB074D4sNgg2xBcBqBEMU3ChFDsIFs6BGIHPYrRkz7R3gGlYGRAVhQTWzYAAKEHakvpJC9lAAAAAElFTkSuQmCC")
 
 BASE_URL = "https://statsapi.mlb.com/api/"
 STANDINGS_API = BASE_URL + "v1/standings?leagueId=103"
@@ -23,7 +24,7 @@ def main():
                 cross_align="center", # Controls vertical
                 children = [
                     render.Padding(
-                        child = render.Image(src=RANGERS_ICON),
+                        child = render.Image(src=RANGERS_ICON_GOLD),
                         pad = 2
                     ),
                     standings_block()
