@@ -15,6 +15,6 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/run-docker-rangersinfo
 #      - uses: ./.github/actions/run-docker-wc-chase
