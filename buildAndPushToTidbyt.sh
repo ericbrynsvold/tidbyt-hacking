@@ -20,6 +20,11 @@ tidbytDeviceIdKyle=$TIDBYT_DEVICE_ID_KYLE
 tidbytApiTokenJason=$TIDBYT_API_TOKEN_JASON
 tidbytDeviceIdJason=$TIDBYT_DEVICE_ID_JASON
 
+ls -l
+cd rangers-info
+ls -l
+cd ..
+
 # build
 pixlet render $sourceFile
 # upload
