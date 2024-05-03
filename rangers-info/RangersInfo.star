@@ -64,7 +64,7 @@ def standings_block():
 
     views = [
         record_view(wins, losses),
-        al_west_view(divisionRank, gamesDiff)
+        al_west_view(divisionRank, gamesDiff, wildCardRank)
     ]
 
     if (wildCardRank != -1):
@@ -148,14 +148,18 @@ def genGamesDiff(alWest):
 def record_view(wins, losses):
     return render.Text(content = "{}-{}".format(wins, losses), color = "#FF0")
 
-def al_west_view(rank, gamesDiff):
+def al_west_view(rank, gamesDiff, wildCardRank):
     if gamesDiff == 0:
         return render.Text("{} (-)".format(humanize.ordinal(1)))
     formatString = "{} (+{})" if (gamesDiff > 0) else "{} ({})"
-    return render.Text(formatString.format(humanize.ordinal(rank), gamesDiff))
+    color = "#FFF" if (gamesDiff >= 0 or wildCardRank <= 3) else "#D3D3D3"
+    return render.Text(content = formatString.format(humanize.ordinal(rank), gamesDiff), color = color)
 
 def wild_card_view(rank):
-    return render.Text("WC: %s" % humanize.ordinal(rank))
+    if (rank <= 3):
+        return render.Text("WC: %s" % humanize.ordinal(rank))
+    else:
+        return render.Text(content = "WC: %s" % humanize.ordinal(rank), color = "#D3D3D3")
 
 def fangraphsGetRangers(standings):
     for team in standings:
