@@ -94,6 +94,17 @@ def standings_block():
             children = views
         )
 
+    if (playoffOdds < 5.0):
+        views = [
+            render.Row(children=[record_view(wins, losses)], main_align="center", expanded=True),
+            render.Row(children=[render.Text("FLAGS")], main_align="center", expanded=True),
+            render.Row(children=[render.Text("FLY")], main_align="center", expanded=True),
+            render.Row(children=[render.Text("FOREVER")], main_align="center", expanded=True)
+        ]
+        return render.Column(
+            children = views
+        )
+
     if (formattedPlayoffOdds == "100.0"):
         views.append(
             render.Animation(
