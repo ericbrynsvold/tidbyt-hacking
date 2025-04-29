@@ -110,12 +110,12 @@ def division_chances_bars(fangraphsJson):
     )
 
 def teamToBar(team):
-    print(team)
-    print(int(64 * team["dpct"]))
+    maybeWidth = int(64 * team["dpct"])
     return render.Box(
         color = team["color"],
         height = 1,
-        width = int(64 * team["dpct"])
+        # clamp width to 1, because Box.width = 0 means fill the screen
+        width = 1 if (maybeWidth == 0) else maybeWidth
     )
 
 def record_view(wins, losses):
