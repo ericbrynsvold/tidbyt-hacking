@@ -3,6 +3,7 @@ load("encoding/base64.star", "base64")
 load("humanize.star", "humanize")
 load("http.star", "http")
 load("encoding/json.star", "json")
+load("time.star", "time")
 
 RANGERS_ICON = base64.decode("iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAAgUlEQVQ4T2NkMKr4z0AhYIQZ8v9sO0lGMRpXwtWTbchBIUUGB8UIsEEohiBLgCRhrsMmTjtDQDYfuL8C7kR8LkFXC/cOtlDF5R10tTgNQY8t5Ngg2hB074D4sNgg2xBcBqBEMU3ChFDsIFs6BGIHPYrRkz7R3gGlYGRAVhQTWzYAAMRfaksi6lX2AAAAAElFTkSuQmCC")
 
@@ -23,6 +24,58 @@ def main():
     fangraphsJson = fg_response.json()
     rangersFangraphsJson = fangraphsGetTeam(fangraphsJson, "TEX")
 
+    # default to standard logo + odds + division bars
+    childrenToDisplay = [
+        render.Box(
+            color = "#003278",
+            height = 26,
+            child = render.Row(
+                expanded = True,
+                main_align = "start",
+                cross_align = "center",
+                children = [
+                    render.Padding(
+                        child = render.Image(src=RANGERS_ICON),
+                        pad = 2
+                    ),
+                    standings(mlbStandings, rangersFangraphsJson)
+                ]
+            )
+        ),
+        division_chances_bars(fangraphsJson)
+    ]
+
+    poffOdds = rangersFangraphsJson["endData"]["poffTitle"]
+    # Under 3% odds after the trading deadline, just call it
+    if (poffOdds < 0.03 and time.now().month >= 8):
+        alWestRecords = getAlWestMLB(mlbStandings)
+        rangersRecords = getRangersMLB(alWestRecords)
+
+        wins = int(rangersRecords["wins"])
+        losses = int(rangersRecords["losses"])
+        childrenToDisplay = [render.Box(
+            color = "#003278",
+            child = render.Row(
+                expanded = True,
+                main_align = "start",
+                cross_align = "center",
+                children = [
+                    render.Padding(
+                        child = render.Image(src = RANGERS_ICON),
+                        pad = 2
+                    ),
+                    render.Column(
+                        children = [
+                            render.Row(children=[record_view(wins, losses)], main_align="center", expanded=True),
+                            render.Row(children=[render.Text("FLAGS")], main_align="center", expanded=True),
+                            render.Row(children=[render.Text("FLY")], main_align="center", expanded=True),
+                            render.Row(children=[render.Text("FOREVER")], main_align="center", expanded=True)
+                        ]
+                    )
+                ]
+            )
+        )]
+
     return render.Root(
         child = render.Box(
             color = "#000000",
@@ -30,25 +83,7 @@ def main():
                 expanded = True,
                 main_align = "start",
                 cross_align = "start",
-                children = [
-                    render.Box(
-                        color = "#003278",
-                        height = 26,
-                        child = render.Row(
-                            expanded = True,
-                            main_align = "start",
-                            cross_align = "center",
-                            children = [
-                                render.Padding(
-                                    child = render.Image(src=RANGERS_ICON),
-                                    pad = 2
-                                ),
-                                standings(mlbStandings, rangersFangraphsJson)
-                            ]
-                        )
-                    ),
-                    division_chances_bars(fangraphsJson)
-                ]
+                children = childrenToDisplay
             )
         )
     )
