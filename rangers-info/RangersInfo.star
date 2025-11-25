@@ -4,6 +4,7 @@ load("humanize.star", "humanize")
 load("http.star", "http")
 load("encoding/json.star", "json")
 load("time.star", "time")
+load("random.star", "random")
 
 RANGERS_ICON = base64.decode("iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAAgUlEQVQ4T2NkMKr4z0AhYIQZ8v9sO0lGMRpXwtWTbchBIUUGB8UIsEEohiBLgCRhrsMmTjtDQDYfuL8C7kR8LkFXC/cOtlDF5R10tTgNQY8t5Ngg2hB074D4sNgg2xBcBqBEMU3ChFDsIFs6BGIHPYrRkz7R3gGlYGRAVhQTWzYAAMRfaksi6lX2AAAAAElFTkSuQmCC")
 
@@ -75,6 +76,47 @@ def main():
                 ]
             )
         )]
+
+    # Temporary offseason mode
+    num = random.number(0, 3)
+    f_name = "Bruce"
+    l_name = "Bochy"
+
+    if num == 0:
+        f_name = "Marcus"
+        l_name = "Semien"
+    elif num == 1:
+        f_name = "Adolis"
+        l_name = "Garcia"
+    elif num == 2:
+        f_name = "Jonah"
+        l_name = "Heim"
+    elif num == 3:
+        f_name = "Josh"
+        l_name = "Sborz"
+
+    childrenToDisplay = [render.Box(
+        color = "#003278",
+        child = render.Row(
+            expanded = True,
+            main_align = "start",
+            cross_align = "center",
+            children = [
+                render.Padding(
+                    child = render.Image(src = RANGERS_ICON),
+                    pad = 2
+                ),
+                render.Column(
+                    children = [
+                        render.Row(children=[render.Text("Thank You")], main_align="center", expanded=True),
+                        render.Row(children=[render.Text("")], main_align="center", expanded=True),
+                        render.Row(children=[render.Text(content = f_name, color = "#FF0")], main_align="center", expanded=True),
+                        render.Row(children=[render.Text(content = l_name, color = "#FF0")], main_align="center", expanded=True)
+                    ]
+                )
+            ]
+        )
+    )]
 
     return render.Root(
         child = render.Box(
