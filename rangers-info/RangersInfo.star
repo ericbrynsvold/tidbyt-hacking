@@ -92,8 +92,8 @@ def main():
         f_name = "Jonah"
         l_name = "Heim"
     elif num == 3:
-        f_name = "Josh"
-        l_name = "Sborz"
+        f_name = "Bruce"
+        l_name = "Bochy"
 
     childrenToDisplay = [render.Box(
         color = "#003278",
