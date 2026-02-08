@@ -77,47 +77,6 @@ def main():
             )
         )]
 
-    # Temporary offseason mode
-    num = random.number(0, 3)
-    f_name = "Bruce"
-    l_name = "Bochy"
-
-    if num == 0:
-        f_name = "Marcus"
-        l_name = "Semien"
-    elif num == 1:
-        f_name = "Adolis"
-        l_name = "Garcia"
-    elif num == 2:
-        f_name = "Jonah"
-        l_name = "Heim"
-    elif num == 3:
-        f_name = "Bruce"
-        l_name = "Bochy"
-
-    childrenToDisplay = [render.Box(
-        color = "#003278",
-        child = render.Row(
-            expanded = True,
-            main_align = "start",
-            cross_align = "center",
-            children = [
-                render.Padding(
-                    child = render.Image(src = RANGERS_ICON),
-                    pad = 2
-                ),
-                render.Column(
-                    children = [
-                        render.Row(children=[render.Text("Thank You")], main_align="center", expanded=True),
-                        render.Row(children=[render.Text("")], main_align="center", expanded=True),
-                        render.Row(children=[render.Text(content = f_name, color = "#FF0")], main_align="center", expanded=True),
-                        render.Row(children=[render.Text(content = l_name, color = "#FF0")], main_align="center", expanded=True)
-                    ]
-                )
-            ]
-        )
-    )]
-
     return render.Root(
         child = render.Box(
             color = "#000000",
@@ -134,10 +93,10 @@ def standings(mlbStandingsJson, rangersFangraphsJson):
     alWestRecords = getAlWestMLB(mlbStandingsJson)
     rangersRecords = getRangersMLB(alWestRecords)
 
-    wins = int(rangersRecords["wins"])
-    losses = int(rangersRecords["losses"])
-    divisionRank = int(rangersRecords["divisionRank"])
-    gamesDiff = genGamesDiff(alWestRecords)
+    wins = 0 #int(rangersRecords["wins"])
+    losses = 0 #int(rangersRecords["losses"])
+    divisionRank = 1 #int(rangersRecords["divisionRank"])
+    gamesDiff = 0.0 #genGamesDiff(alWestRecords)
 
     wildCardRank = -1
     if "wildCardRank" in rangersRecords and gamesDiff != 0:
