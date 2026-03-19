@@ -16,6 +16,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/run-docker-rangersinfo
-      - uses: ./.github/actions/run-docker-nextgame
+      - uses: ./.github/actions/run-docker-rangersinfo-nextgame
 #      - uses: ./.github/actions/run-docker-wc-chase

@@ -1,0 +1,6 @@
+name: 'Run Docker - RangersInfo + NextGame'
+description: 'Builds container to build and push both RangersInfo and NextGame Tidbyt apps'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+
