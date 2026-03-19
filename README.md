@@ -55,7 +55,7 @@ tidbyt-hacking/
 |-----|------|-------------|
 | **RangersInfo** | `rangers-info/RangersInfo.star` | Rangers logo, W–L, division rank, playoff %, and AL West division odds as colored bars (MLB API + Fangraphs). Shows “Flags Fly Forever” when playoff odds &lt; 3% after deadline. |
 | **RangersInfo-playoffs** | `rangers-info/playoffs/RangersInfo-playoffs.star` | Playoffs-focused: DS/CS/WS odds; special views for WS champs, AL champs, or “great run” when eliminated. |
-| **NextGame** | `next-game/NextGame.star` | Next game panel (black background, no logo): line 1 matchup (team-colored), line 2 date/time, line 3-4 probable pitchers last names (Rangers first), plus a left vertical win-streak bar with blue background (2 px per game). |
+| **NextGame** | `next-game/NextGame.star` | Next game panel (black background, no logo): line 1 matchup (team-colored), line 2 date/time, line 3-4 probable pitchers last names (Rangers first), plus a left vertical win-streak bar on black background (2 px per game). |
 | **WCChase** | `wc-chase/WCChase.star` | Wild Card race: TEX, HOU, SEA, TOR with division/WC games back and win % (MLB standings API). |
 
 ## Toolchain

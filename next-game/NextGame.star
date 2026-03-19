@@ -12,7 +12,9 @@ STREAK_BAR_WIDTH = 2
 ACCENT_LIGHT = "#B0D4FF"
 
 def main():
-    now = time.now()
+    # Use a fixed timezone so "today" and "next game" selection are consistent
+    # between CI rendering and local/dev rendering.
+    now = time.now().in_location("America/Chicago")
     year = now.year
     # Fetch full season schedule for the team (one call)
     schedule_url = BASE_MLB_URL + "schedule?sportId=1&teamId=140&season=" + str(year) + "&hydrate=probablePitcher(person)"
@@ -106,6 +108,9 @@ def next_game_block(game):
             ),
         )
 
+    # Rangers brand color for text (used regardless of streak background).
+    tex_color = RANGERS_BLUE
+
     teams = game.get("teams", {})
     away = teams.get("away", {})
     home = teams.get("home", {})
@@ -123,9 +128,9 @@ def next_game_block(game):
     # Line 1: TEX vs/at OPP with team colors
     line1 = render.Row(
         children = [
-            render.Text(font = "5x8", content = "TEX ", color = ACCENT_LIGHT),
+            render.Text(font = "5x8", content = "TEX ", color = tex_color),
             render.Text(font = "5x8", content = at_or_vs, color = "#FFF"),
-            render.Text(font = "5x8", content = opp_name, color = team_color(opp_name)),
+            render.Text(font = "5x8", content = opp_name, color = team_text_color(opp_name)),
         ],
     )
 
@@ -134,7 +139,8 @@ def next_game_block(game):
     time_str = format_game_time(game_date)
     date_str = format_game_date(official_date)
     # Line 2: date / time (accent)
-    line2 = render.Text(font = "5x8", content = date_str + " / " + time_str, color = ACCENT_LIGHT)
+    # Line 2 stays pure white for readability across all opponents.
+    line2 = render.Text(font = "5x8", content = date_str + " / " + time_str, color = "#FFFFFF")
 
     # Probable pitchers: first = Rangers, second = opponent; color by team
     if away_id == RANGERS_TEAM_ID:
@@ -143,8 +149,8 @@ def next_game_block(game):
     else:
         rangers_prob = home.get("probablePitcher")
         opp_prob = away.get("probablePitcher")
-    line3 = render.Text(font = "5x8", content = pitcher_last_name(rangers_prob), color = ACCENT_LIGHT)
-    line4 = render.Text(font = "5x8", content = pitcher_last_name(opp_prob), color = team_color(opp_name))
+    line3 = render.Text(font = "5x8", content = pitcher_last_name(rangers_prob), color = tex_color)
+    line4 = render.Text(font = "5x8", content = pitcher_last_name(opp_prob), color = team_text_color(opp_name))
 
     lines = [line1, line2, line3, line4]
 
@@ -221,6 +227,55 @@ def team_color(abbrev):
         return colors[abbrev]
     return "#DDD"
 
+MIN_LUMINANCE = 70
+
+def hex_to_rgb(hex_color):
+    if hex_color == None:
+        return 255, 255, 255
+    r = int(hex_color[1:3], 16)
+    g = int(hex_color[3:5], 16)
+    b = int(hex_color[5:7], 16)
+    return r, g, b
+
+def hex_byte_to_two(n):
+    # Starlark-friendly 0-255 -> 2 hex chars
+    digits = "0123456789ABCDEF"
+    hi = n // 16
+    lo = n % 16
+    return digits[hi] + digits[lo]
+
+def rgb_to_hex(r, g, b):
+    return "#" + hex_byte_to_two(r) + hex_byte_to_two(g) + hex_byte_to_two(b)
+
+def luminance_num(r, g, b):
+    # Uses lum ~= 0.2126*r + 0.7152*g + 0.0722*b, scaled by 10000.
+    return 2126 * r + 7152 * g + 722 * b
+
+def lighten_toward_white(hex_color, target_luminance):
+    # If already bright enough, keep it.
+    r, g, b = hex_to_rgb(hex_color)
+    lum0 = luminance_num(r, g, b)  # scaled to /10000 later
+    target_num = target_luminance * 10000
+    white_num = 255 * 10000
+    if lum0 >= target_num:
+        return hex_color
+
+    # Blend factor alpha computed in rational form:
+    # lum(alpha) = (1-alpha)*lum0 + alpha*255  => alpha = (target - lum0)/(255 - lum0)
+    # All in "scaled by 10000" space to avoid float math.
+    a_num = target_num - lum0
+    a_den = white_num - lum0
+    # r_new = r + alpha*(255-r) => r_new = (r*a_den + a_num*(255-r))/a_den
+    new_r = int((r * a_den + a_num * (255 - r)) / a_den)
+    new_g = int((g * a_den + a_num * (255 - g)) / a_den)
+    new_b = int((b * a_den + a_num * (255 - b)) / a_den)
+    return rgb_to_hex(new_r, new_g, new_b)
+
+def team_text_color(abbrev):
+    # Preserve variety: if the team color is too dark on black, blend it toward white.
+    base = team_color(abbrev)
+    return lighten_toward_white(base, MIN_LUMINANCE)
+
 def short_team_name(full_name):
     # Shorten for 64px display
     m = {
@@ -288,25 +343,32 @@ def format_game_time(iso_str):
     return str(hour) + ":" + min_str + "p"
 
 def streak_bar(streak_count, is_win_streak):
-    # Vertical bar on the left with blue background so no black shows beneath
-    # 32px-tall blue column; green/red streak at top, blue fills the rest
+    # Vertical bar on the left: only the streak portion is green/red; the rest is black.
+    # 32px-tall black column with green/red streak at the top.
     DISPLAY_HEIGHT = 32
-    streak_fill = []
-    if streak_count > 0:
-        bar_height = streak_count * STREAK_PX_PER_GAME
-        if bar_height > MAX_STREAK_GAMES * STREAK_PX_PER_GAME:
-            bar_height = MAX_STREAK_GAMES * STREAK_PX_PER_GAME
-        bar_color = "#00AA00" if is_win_streak else "#CC0000"
-        streak_fill = [render.Box(width = STREAK_BAR_WIDTH, height = bar_height, color = bar_color)]
+    if streak_count <= 0:
+        return render.Box(width = STREAK_BAR_WIDTH, height = DISPLAY_HEIGHT, color = "#000000")
+
+    bar_height = streak_count * STREAK_PX_PER_GAME
+    if bar_height > MAX_STREAK_GAMES * STREAK_PX_PER_GAME:
+        bar_height = MAX_STREAK_GAMES * STREAK_PX_PER_GAME
+
+    bar_color = "#00AA00" if is_win_streak else "#CC0000"
+    remaining_height = DISPLAY_HEIGHT - bar_height
+    if remaining_height < 0:
+        remaining_height = 0
 
     return render.Box(
         width = STREAK_BAR_WIDTH,
         height = DISPLAY_HEIGHT,
-        color = RANGERS_BLUE,
+        color = "#000000",
         child = render.Column(
             main_align = "start",
             cross_align = "start",
-            children = streak_fill + [render.Box(width = STREAK_BAR_WIDTH, height = DISPLAY_HEIGHT, color = RANGERS_BLUE)],
+            children = [
+                render.Box(width = STREAK_BAR_WIDTH, height = bar_height, color = bar_color),
+                render.Box(width = STREAK_BAR_WIDTH, height = remaining_height, color = "#000000"),
+            ],
         ),
     )
 

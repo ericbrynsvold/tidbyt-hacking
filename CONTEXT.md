@@ -33,7 +33,7 @@ Quick reference for anyone (or any agent) picking up this repo later.
 - HTTP: `http.get(url, ttl_seconds=...)`; parse with `.json()`; `fail()` on error.
 - Data sources used: MLB Stats API (`statsapi.mlb.com` for standings and schedule, including probable pitchers via hydrate), Fangraphs playoff odds API.
 
-NextGame UI note: black background, no logo; matchup + date/time + probable pitcher last names (team-colored); left vertical streak column with blue background.
+NextGame UI note: black background, no logo; matchup + date/time + probable pitcher last names (team-colored); left vertical streak column on black background.
 
 ## Secrets (CI)
 
