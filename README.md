@@ -18,6 +18,7 @@ tidbyt-hacking/
 ├── CONTEXT.md               # Short context/reference for AI or future you
 ├── buildAndPushToTidbyt.sh   # Shared: render .star → .webp, then push to devices
 ├── build-rangersinfo.sh      # Build + push RangersInfo app
+├── build-nextgame.sh        # Build + push NextGame app
 ├── build-wcchase.sh         # Build + push WC Chase app
 ├── .env                      # Local env (gitignored): TIDBYT_* vars
 ├── .gitignore
@@ -28,6 +29,8 @@ tidbyt-hacking/
 │   └── playoffs/
 │       └── RangersInfo-playoffs.star  # Playoffs variant (DS/CS/WS odds)
 │
+├── next-game/                # Next game + win streak app
+│   └── NextGame.star         # Next game (TEX at/vs opponent + pitcher last names) + streak bar
 ├── wc-chase/                 # Wild Card chase app
 │   └── WCChase.star          # AL West + AL East WC race (TEX, HOU, SEA, TOR)
 │
@@ -36,6 +39,9 @@ tidbyt-hacking/
     │   └── build-and-push-rangersinfo.yml   # CI: build + push on push/schedule
     └── actions/
         ├── run-docker-rangersinfo/          # Docker job for RangersInfo
+        │   ├── action.yml
+        │   └── Dockerfile
+        ├── run-docker-nextgame/             # Docker job for NextGame
         │   ├── action.yml
         │   └── Dockerfile
         └── run-docker-wc-chase/             # Docker job for WC Chase
@@ -49,6 +55,7 @@ tidbyt-hacking/
 |-----|------|-------------|
 | **RangersInfo** | `rangers-info/RangersInfo.star` | Rangers logo, W–L, division rank, playoff %, and AL West division odds as colored bars (MLB API + Fangraphs). Shows “Flags Fly Forever” when playoff odds &lt; 3% after deadline. |
 | **RangersInfo-playoffs** | `rangers-info/playoffs/RangersInfo-playoffs.star` | Playoffs-focused: DS/CS/WS odds; special views for WS champs, AL champs, or “great run” when eliminated. |
+| **NextGame** | `next-game/NextGame.star` | Next game panel (black background, no logo): line 1 matchup (team-colored), line 2 date/time, line 3-4 probable pitchers last names (Rangers first), plus a left vertical win-streak bar with blue background (2 px per game). |
 | **WCChase** | `wc-chase/WCChase.star` | Wild Card race: TEX, HOU, SEA, TOR with division/WC games back and win % (MLB standings API). |
 
 ## Toolchain
@@ -79,6 +86,10 @@ Install Pixlet locally:
      ```bash
      ./build-rangersinfo.sh
      ```
+   - NextGame:
+     ```bash
+     ./build-nextgame.sh
+     ```
    - WC Chase:
      ```bash
      ./build-wcchase.sh
@@ -99,6 +110,7 @@ Install Pixlet locally:
    Example:
    ```bash
    ./buildAndPushToTidbyt.sh RangersInfo RangersInfo rangers-info
+   ./buildAndPushToTidbyt.sh NextGame NextGame next-game
    ./buildAndPushToTidbyt.sh WCChase WCChase wc-chase
    ```
 
@@ -115,14 +127,17 @@ Install Pixlet locally:
 
 - **Workflow**: `.github/workflows/build-and-push-rangersinfo.yml`
   - **Triggers**: Push to the repo, and cron `01 10 * * *` (daily at 10:01 UTC).
-  - **Job**: Runs the composite action `./.github/actions/run-docker-rangersinfo`, which builds a Docker image, installs Pixlet (from Tidbyt’s repo), and runs `build-rangersinfo.sh` inside the container.
+  - **Job**: Runs two Docker actions in sequence so **both** RangersInfo and NextGame are built and pushed on each run:
+    1. `./.github/actions/run-docker-rangersinfo` – builds and pushes RangersInfo.
+    2. `./.github/actions/run-docker-nextgame` – builds and pushes NextGame.
+  - Each action builds a Docker image, installs Pixlet (from Tidbyt’s repo), and runs its build script inside the container.
 
 - **Secrets** (set in repo Settings → Secrets and variables → Actions):
   - `TIDBYT_API_TOKEN`, `TIDBYT_DEVICE_ID`
   - `TIDBYT_API_TOKEN_KYLE`, `TIDBYT_DEVICE_ID_KYLE`
   - `TIDBYT_API_TOKEN_JASON`, `TIDBYT_DEVICE_ID_JASON`
 
-- **WC Chase**: The workflow currently only runs the RangersInfo Docker action. To also build and push WC Chase, uncomment the step that uses `./.github/actions/run-docker-wc-chase` in the workflow.
+- **WC Chase**: To also build and push WC Chase, uncomment the step that uses `./.github/actions/run-docker-wc-chase` in the workflow.
 
 ## Starlark app conventions
 

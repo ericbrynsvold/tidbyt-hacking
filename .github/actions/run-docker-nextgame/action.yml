@@ -1,0 +1,5 @@
+name: 'Run Docker - NextGame'
+description: 'Builds container to build NextGame Tidbyt app'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
