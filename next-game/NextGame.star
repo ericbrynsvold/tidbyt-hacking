@@ -8,8 +8,10 @@ BASE_MLB_URL = "https://statsapi.mlb.com/api/v1/"
 STREAK_PX_PER_GAME = 2
 MAX_STREAK_GAMES = 16
 STREAK_BAR_WIDTH = 2
-# Accent for Rangers text and date/time
-ACCENT_LIGHT = "#B0D4FF"
+# 5x8 font: 5px per char, 8px tall — Box needs explicit size or it expands to fill
+def text_w(s):
+    return len(s) * 5
+TEXT_H = 8
 
 def main():
     # Use a fixed timezone so "today" and "next game" selection are consistent
@@ -108,9 +110,6 @@ def next_game_block(game):
             ),
         )
 
-    # Rangers brand color for text (used regardless of streak background).
-    tex_color = RANGERS_BLUE
-
     teams = game.get("teams", {})
     away = teams.get("away", {})
     home = teams.get("home", {})
@@ -120,17 +119,19 @@ def next_game_block(game):
     home_id = home_team.get("id", 0)
     if away_id == RANGERS_TEAM_ID:
         opp_name = short_team_name(home_team.get("name", ""))
-        at_or_vs = "at "
+        at_or_vs = " at "
     else:
         opp_name = short_team_name(away_team.get("name", ""))
-        at_or_vs = "vs "
+        at_or_vs = " vs "
 
-    # Line 1: TEX vs/at OPP with team colors
+    # Line 1: TEX vs/at OPP — team color as background, white text
+    tex_content = "TEX"
+    opp_content = opp_name
     line1 = render.Row(
         children = [
-            render.Text(font = "5x8", content = "TEX ", color = tex_color),
+            render.Box(width = text_w(tex_content), height = TEXT_H, color = RANGERS_BLUE, child = render.Text(font = "5x8", content = tex_content, color = "#FFF")),
             render.Text(font = "5x8", content = at_or_vs, color = "#FFF"),
-            render.Text(font = "5x8", content = opp_name, color = team_text_color(opp_name)),
+            render.Box(width = text_w(opp_content), height = TEXT_H, color = team_color(opp_name), child = render.Text(font = "5x8", content = opp_content, color = "#FFF")),
         ],
     )
 
@@ -138,25 +139,27 @@ def next_game_block(game):
     official_date = game.get("officialDate", "")
     time_str = format_game_time(game_date)
     date_str = format_game_date(official_date)
-    # Line 2: date / time (accent)
-    # Line 2 stays pure white for readability across all opponents.
-    line2 = render.Text(font = "5x8", content = date_str + " / " + time_str, color = "#FFFFFF")
+    # Line 2: date / time
+    line2 = render.Text(font = "5x8", content = date_str + " / " + time_str, color = "#FFF")
 
-    # Probable pitchers: first = Rangers, second = opponent; color by team
+    # Probable pitchers: first = Rangers, second = opponent; team color as background, white text
     if away_id == RANGERS_TEAM_ID:
         rangers_prob = away.get("probablePitcher")
         opp_prob = home.get("probablePitcher")
     else:
         rangers_prob = home.get("probablePitcher")
         opp_prob = away.get("probablePitcher")
-    line3 = render.Text(font = "5x8", content = pitcher_last_name(rangers_prob), color = tex_color)
-    line4 = render.Text(font = "5x8", content = pitcher_last_name(opp_prob), color = team_text_color(opp_name))
+    rp_name = pitcher_last_name(rangers_prob)
+    op_name = pitcher_last_name(opp_prob)
+    line3 = render.Box(width = text_w(rp_name), height = TEXT_H, color = RANGERS_BLUE, child = render.Text(font = "5x8", content = rp_name, color = "#FFF"))
+    line4 = render.Box(width = text_w(op_name), height = TEXT_H, color = team_color(opp_name), child = render.Text(font = "5x8", content = op_name, color = "#FFF"))
 
     lines = [line1, line2, line3, line4]
 
     return render.Box(
         color = "#000000",
         child = render.Column(
+            cross_align = "start",
             children = lines,
         ),
     )
@@ -226,55 +229,6 @@ def team_color(abbrev):
     if abbrev in colors:
         return colors[abbrev]
     return "#DDD"
-
-MIN_LUMINANCE = 70
-
-def hex_to_rgb(hex_color):
-    if hex_color == None:
-        return 255, 255, 255
-    r = int(hex_color[1:3], 16)
-    g = int(hex_color[3:5], 16)
-    b = int(hex_color[5:7], 16)
-    return r, g, b
-
-def hex_byte_to_two(n):
-    # Starlark-friendly 0-255 -> 2 hex chars
-    digits = "0123456789ABCDEF"
-    hi = n // 16
-    lo = n % 16
-    return digits[hi] + digits[lo]
-
-def rgb_to_hex(r, g, b):
-    return "#" + hex_byte_to_two(r) + hex_byte_to_two(g) + hex_byte_to_two(b)
-
-def luminance_num(r, g, b):
-    # Uses lum ~= 0.2126*r + 0.7152*g + 0.0722*b, scaled by 10000.
-    return 2126 * r + 7152 * g + 722 * b
-
-def lighten_toward_white(hex_color, target_luminance):
-    # If already bright enough, keep it.
-    r, g, b = hex_to_rgb(hex_color)
-    lum0 = luminance_num(r, g, b)  # scaled to /10000 later
-    target_num = target_luminance * 10000
-    white_num = 255 * 10000
-    if lum0 >= target_num:
-        return hex_color
-
-    # Blend factor alpha computed in rational form:
-    # lum(alpha) = (1-alpha)*lum0 + alpha*255  => alpha = (target - lum0)/(255 - lum0)
-    # All in "scaled by 10000" space to avoid float math.
-    a_num = target_num - lum0
-    a_den = white_num - lum0
-    # r_new = r + alpha*(255-r) => r_new = (r*a_den + a_num*(255-r))/a_den
-    new_r = int((r * a_den + a_num * (255 - r)) / a_den)
-    new_g = int((g * a_den + a_num * (255 - g)) / a_den)
-    new_b = int((b * a_den + a_num * (255 - b)) / a_den)
-    return rgb_to_hex(new_r, new_g, new_b)
-
-def team_text_color(abbrev):
-    # Preserve variety: if the team color is too dark on black, blend it toward white.
-    base = team_color(abbrev)
-    return lighten_toward_white(base, MIN_LUMINANCE)
 
 def short_team_name(full_name):
     # Shorten for 64px display
