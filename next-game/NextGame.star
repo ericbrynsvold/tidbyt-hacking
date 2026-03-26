@@ -151,8 +151,8 @@ def next_game_block(game):
         opp_prob = away.get("probablePitcher")
     rp_name = pitcher_last_name(rangers_prob)
     op_name = pitcher_last_name(opp_prob)
-    line3 = render.Box(width = text_w(rp_name), height = TEXT_H, color = RANGERS_BLUE, child = render.Text(font = "5x8", content = rp_name, color = "#FFF"))
-    line4 = render.Box(width = text_w(op_name), height = TEXT_H, color = team_color(opp_name), child = render.Text(font = "5x8", content = op_name, color = "#FFF"))
+    line3 = render.Padding(pad = 0, color = RANGERS_BLUE, child = render.Text(font = "5x8", content = rp_name, color = "#FFF"))
+    line4 = render.Padding(pad = 0, color = team_color(opp_name), child = render.Text(font = "5x8", content = op_name, color = "#FFF"))
 
     lines = [line1, line2, line3, line4]
 
@@ -167,12 +167,15 @@ def next_game_block(game):
 def pitcher_last_name(probable_pitcher):
     if probable_pitcher == None:
         return "TBD"
-    full = probable_pitcher.get("fullName", "")
+    full = probable_pitcher.get("fullName", "").strip()
     if full == "":
         return "TBD"
-    parts = full.split(" ")
+    parts = []
+    for p in full.split(" "):
+        if p != "":
+            parts.append(p)
     if len(parts) >= 2:
-        return parts[-1]
+        return parts[-1].strip()
     return full
 
 def format_game_date(official_date):
