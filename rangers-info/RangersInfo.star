@@ -93,10 +93,10 @@ def standings(mlbStandingsJson, rangersFangraphsJson):
     alWestRecords = getAlWestMLB(mlbStandingsJson)
     rangersRecords = getRangersMLB(alWestRecords)
 
-    wins = 0 #int(rangersRecords["wins"])
-    losses = 0 #int(rangersRecords["losses"])
-    divisionRank = 1 #int(rangersRecords["divisionRank"])
-    gamesDiff = 0.0 #genGamesDiff(alWestRecords)
+    wins = int(rangersRecords["wins"])
+    losses = int(rangersRecords["losses"])
+    divisionRank = int(rangersRecords["divisionRank"])
+    gamesDiff = genGamesDiff(alWestRecords)
 
     wildCardRank = -1
     if "wildCardRank" in rangersRecords and gamesDiff != 0:
