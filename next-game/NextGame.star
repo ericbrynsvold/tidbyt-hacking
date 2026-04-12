@@ -5,9 +5,11 @@ load("time.star", "time")
 RANGERS_TEAM_ID = 140
 RANGERS_BLUE = "#003278"
 BASE_MLB_URL = "https://statsapi.mlb.com/api/v1/"
-STREAK_PX_PER_GAME = 2
-MAX_STREAK_GAMES = 16
+STREAK_PX_PER_GAME = 3
+STREAK_BAR_HEIGHT = 32
 STREAK_BAR_WIDTH = 2
+# Games that fit in STREAK_BAR_HEIGHT at current px/game; longer streaks clip here.
+MAX_STREAK_GAMES = STREAK_BAR_HEIGHT // STREAK_PX_PER_GAME
 # 5x8 font: 5px per char, 8px tall — Box needs explicit size or it expands to fill
 def text_w(s):
     return len(s) * 5
@@ -301,23 +303,20 @@ def format_game_time(iso_str):
 
 def streak_bar(streak_count, is_win_streak):
     # Vertical bar on the left: only the streak portion is green/red; the rest is black.
-    # 32px-tall black column with green/red streak at the top.
-    DISPLAY_HEIGHT = 32
     if streak_count <= 0:
-        return render.Box(width = STREAK_BAR_WIDTH, height = DISPLAY_HEIGHT, color = "#000000")
+        return render.Box(width = STREAK_BAR_WIDTH, height = STREAK_BAR_HEIGHT, color = "#000000")
 
     bar_height = streak_count * STREAK_PX_PER_GAME
-    if bar_height > MAX_STREAK_GAMES * STREAK_PX_PER_GAME:
-        bar_height = MAX_STREAK_GAMES * STREAK_PX_PER_GAME
+    cap = MAX_STREAK_GAMES * STREAK_PX_PER_GAME
+    if bar_height > cap:
+        bar_height = cap
 
     bar_color = "#00AA00" if is_win_streak else "#CC0000"
-    remaining_height = DISPLAY_HEIGHT - bar_height
-    if remaining_height < 0:
-        remaining_height = 0
+    remaining_height = STREAK_BAR_HEIGHT - bar_height
 
     return render.Box(
         width = STREAK_BAR_WIDTH,
-        height = DISPLAY_HEIGHT,
+        height = STREAK_BAR_HEIGHT,
         color = "#000000",
         child = render.Column(
             main_align = "start",
