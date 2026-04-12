@@ -176,10 +176,20 @@ def genGamesDiff(alWest):
         if rangers["divisionGamesBack"] == "-":
             return 0
         return float(rangers["divisionGamesBack"]) * -1
-    smallestGamesBack = 162.0
+    # When TEX leads, GB is the smallest rival GB. MLB often sends "-" for GB when
+    # it does not apply (ties, off-hours, etc.); float("-") crashes.
+    smallestGamesBack = None
     for rival in alWest:
-        if rival["team"]["id"] != 140 and float(rival["divisionGamesBack"]) < smallestGamesBack:
-            smallestGamesBack = float(rival["divisionGamesBack"])
+        if rival["team"]["id"] == 140:
+            continue
+        gb = rival["divisionGamesBack"]
+        if gb == "-" or gb == "":
+            continue
+        f = float(gb)
+        if smallestGamesBack == None or f < smallestGamesBack:
+            smallestGamesBack = f
+    if smallestGamesBack == None:
+        return 0
     return float(smallestGamesBack)
 
 def getAlWestMLB(divisions):
